@@ -46,6 +46,7 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
                   color: Colors.white10,
                   child: ListTile(
                     title: _itemList[index],
+                    subtitle: Text("data"),
                     onLongPress: () => debugPrint(""),
                     trailing: Listener(
                       key: Key(_itemList[index].itemName),
@@ -99,6 +100,7 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
           onPressed: () {
             _handleSubmitted(_textEditingController.text);
             _textEditingController.clear();
+            Navigator.pop(context);
           },
           child: Text("Save"),
         ),
@@ -119,8 +121,10 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
   _readNoDoItems() async {
     List items = await db.getItems();
     items.forEach((item) {
-      NoDoItem noDoItem = NoDoItem.map(item);
-      print("Db items: ${noDoItem.itemName}");
+      NoDoItem noDoItem = NoDoItem.fromMap(item);
+      setState(() {
+        _itemList.add(noDoItem);
+      });
     });
   }
 }
