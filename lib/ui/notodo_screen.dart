@@ -11,11 +11,22 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
 
   final TextEditingController _textEditingController = new TextEditingController();
   var db = DatabaseHelper();
+  final List<NoDoItem> _itemList = <NoDoItem>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _readNoDoItems();
+  }
 
   void _handleSubmitted(String text) async {
     _textEditingController.clear();
     NoDoItem noDoItem = NoDoItem(text, DateTime.now().toIso8601String());
     int savedItemId = await db.saveItem(noDoItem);
+    NoDoItem addedItem = await db.getItem(savedItemId);
+    setState(() {
+      _itemList.insert(0, addedItem);
+    });
     print("Item saved item: $savedItemId");
   }
 
@@ -23,7 +34,36 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black87,
-      body: Column(),
+      body: Column(
+        children: <Widget>[
+          Flexible(
+            child: ListView.builder(
+              padding: EdgeInsets.all(8.0),
+              reverse: false,
+              itemCount: _itemList.length,
+              itemBuilder: (_, int index) {
+                return Card(
+                  color: Colors.white10,
+                  child: ListTile(
+                    title: _itemList[index],
+                    onLongPress: () => debugPrint(""),
+                    trailing: Listener(
+                      key: Key(_itemList[index].itemName),
+                      child: Icon(Icons.remove_circle,
+                        color:Colors.redAccent,
+                      ),
+                      onPointerDown: (pointerEvent) => debugPrint(""),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Divider(
+            height: 1.0,
+          )
+        ],
+      ),
       floatingActionButton: new FloatingActionButton(
         tooltip: "Add Item",
         backgroundColor: Colors.redAccent,
@@ -74,5 +114,13 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
         return alert;
       }
     );
+  }
+
+  _readNoDoItems() async {
+    List items = await db.getItems();
+    items.forEach((item) {
+      NoDoItem noDoItem = NoDoItem.map(item);
+      print("Db items: ${noDoItem.itemName}");
+    });
   }
 }

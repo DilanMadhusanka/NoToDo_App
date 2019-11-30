@@ -8,9 +8,9 @@ class NoDoItem extends StatelessWidget {
   NoDoItem(this._itemName, this._dateCreated);
 
   NoDoItem.map(dynamic obj) {
-    this._itemName = obj['itemName'];
-    this._dateCreated = obj['dateCreated'];
-    this._id = obj['id'];
+    this._itemName = obj["itemName"];
+    this._dateCreated = obj["dateCreated"];
+    this._id = obj["id"];
   }
 
   String get itemName => _itemName;
