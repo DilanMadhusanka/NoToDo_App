@@ -53,7 +53,8 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
                       child: Icon(Icons.remove_circle,
                         color:Colors.redAccent,
                       ),
-                      onPointerDown: (pointerEvent) => debugPrint(""),
+                      onPointerDown: (pointerEvent) => 
+                        _deleteNoDo(_itemList[index].id, index)
                     ),
                   ),
                 );
@@ -125,6 +126,14 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
       setState(() {
         _itemList.add(noDoItem);
       });
+    });
+  }
+
+  _deleteNoDo(int id, int index) async {
+    debugPrint("Delete Item $id");
+    await db.deleteItem(id);
+    setState(() {
+      _itemList.removeAt(index);
     });
   }
 }
