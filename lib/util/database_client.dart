@@ -35,9 +35,9 @@ class DatabaseHelper{
 
   void _onCreate(Database db, int version) async {
     await db.execute(
-      "CREATE TABLE $tableName(id INTEGER PRIMARY KEY, $columnItemName TEXT, $columnDateCreated)";
-      print("Table is created");
+      "CREATE TABLE $tableName(id INTEGER PRIMARY KEY, $columnItemName TEXT, $columnDateCreated)"
     );
+    print("Table is created");
   }
 
   Future<int> saveItem(NoDoItem item) async {
@@ -75,6 +75,11 @@ class DatabaseHelper{
   Future<int> updateItem(NoDoItem item) async {
     var dbClient = await db;
     return dbClient.update("$tableName", item.toMap(),where: "$columnId = ?", whereArgs: [item.id]);
+  }
+
+  Future close() async {
+    var dbClient = await db;
+    return dbClient.close();
   }
 
 }
