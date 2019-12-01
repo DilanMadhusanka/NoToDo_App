@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notodo_app/model/nodo_item.dart';
 import 'package:notodo_app/util/database_client.dart';
+import 'package:notodo_app/util/date_formatter.dart';
 
 class NoToDoScreen extends StatefulWidget {
   @override
@@ -21,13 +22,12 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
 
   void _handleSubmitted(String text) async {
     _textEditingController.clear();
-    NoDoItem noDoItem = NoDoItem(text, DateTime.now().toIso8601String());
+    NoDoItem noDoItem = NoDoItem(text, dateFormatted());
     int savedItemId = await db.saveItem(noDoItem);
     NoDoItem addedItem = await db.getItem(savedItemId);
     setState(() {
       _itemList.insert(0, addedItem);
     });
-    print("Item saved item: $savedItemId");
   }
 
   @override
@@ -46,8 +46,7 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
                   color: Colors.white10,
                   child: ListTile(
                     title: _itemList[index],
-                    subtitle: Text("data"),
-                    onLongPress: () => debugPrint(""),
+                    onLongPress: () => _updateItem(_itemList[index], index),
                     trailing: Listener(
                       key: Key(_itemList[index].itemName),
                       child: Icon(Icons.remove_circle,
@@ -134,6 +133,65 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
     await db.deleteItem(id);
     setState(() {
       _itemList.removeAt(index);
+    });
+  }
+
+  _updateItem(NoDoItem item, int index) {
+    var alert = new AlertDialog(
+      title: Text("Update Item"),
+      content: Row(
+        children: <Widget>[
+          Expanded(
+            child: TextField(
+              controller: _textEditingController,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: "Item",
+                hintText: "eg. Don't buy stuff",
+                icon: Icon(Icons.update)
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () async {
+            NoDoItem newItemUpdate = NoDoItem.fromMap(
+              {
+                "itemName": _textEditingController.text,
+                "dateCreated": dateFormatted(),
+                "id": item.id
+              }
+            );
+            _handleSubmittedUpdate(index, item);
+            await db.updateItem(newItemUpdate);
+            setState(() {
+              _readNoDoItems();
+            });
+            Navigator.pop(context);
+          },
+          child: Text("Update"),
+        ),
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text("Cancel"),
+        )
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (_) {
+        return alert;
+      }
+    );
+  }
+
+  void _handleSubmittedUpdate(int index, NoDoItem item) {
+    setState(() {
+      _itemList.removeWhere((element){
+        _itemList[index].itemName == item.itemName;
+      });
     });
   }
 }
