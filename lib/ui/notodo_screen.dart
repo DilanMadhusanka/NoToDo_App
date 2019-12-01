@@ -129,7 +129,6 @@ class _NoToDoScreenState extends State<NoToDoScreen> {
   }
 
   _deleteNoDo(int id, int index) async {
-    debugPrint("Delete Item $id");
     await db.deleteItem(id);
     setState(() {
       _itemList.removeAt(index);
